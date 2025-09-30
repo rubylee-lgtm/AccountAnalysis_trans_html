@@ -3,18 +3,20 @@
 ## 🎯 專案概述
 
 **專案名稱**: 財務 AccountAnalysis 轉換工具  
-**版本**: 1.0.0  
-**技術棧**: React 18 + Vite + Tailwind CSS + PapaParse + XLSX + Canvas Confetti  
+**版本**: 2.0.0 (純HTML版本)  
+**技術棧**: 純HTML + Tailwind CSS + PapaParse + Canvas Confetti  
 **開發時間**: 2025年1月  
+**最終狀態**: ✅ 完成，僅支援CSV檔案  
 
 ## 📋 功能需求
 
 ### 核心功能
-1. **檔案上傳**: 支援 CSV 和 Excel (.xlsx, .xls) 檔案格式
+1. **檔案上傳**: 僅支援 CSV 檔案格式
 2. **格式轉換**: 將來源檔案轉換為標準的10個欄位格式
 3. **格式保護**: 確保所有欄位保持原始格式，不被自動轉換
 4. **檔案下載**: 轉換完成後提供下載功能
 5. **動畫效果**: 轉換完成後觸發彩帶動畫
+6. **Excel警語**: 上傳Excel檔案時顯示處理說明
 
 ### 目標欄位順序
 ```
@@ -33,45 +35,40 @@
 ## 🛠 技術架構
 
 ### 前端技術
-- **React 18**: 現代化UI框架
-- **Vite**: 快速開發環境
-- **Tailwind CSS**: 響應式UI設計
-- **PapaParse**: CSV檔案處理
-- **XLSX**: Excel檔案處理
-- **Canvas Confetti**: 彩帶動畫效果
+- **純HTML**: 單一檔案部署
+- **Tailwind CSS**: 響應式UI設計 (CDN)
+- **PapaParse**: CSV檔案處理 (CDN)
+- **Canvas Confetti**: 彩帶動畫效果 (CDN)
+- **JavaScript**: 原生JavaScript處理邏輯
 
 ### 專案結構
 ```
 AccountAnalysis/
-├── src/
-│   ├── App.jsx          # 主要應用組件
-│   ├── App.css          # 自定義樣式
-│   ├── main.jsx         # 應用入口
-│   └── index.css        # 全域樣式
-├── public/              # 靜態資源
-├── package.json         # 依賴管理
-├── vite.config.js       # Vite配置
-├── tailwind.config.js   # Tailwind配置
-├── postcss.config.js    # PostCSS配置
-├── index.html          # HTML模板
+├── index.html           # 主要應用檔案 (純HTML版本)
+├── plan.md             # 專案規劃文件
 └── README.md           # 專案說明
 ```
+
+### 部署方式
+- **單一檔案**: 只需 `index.html` 即可運行
+- **CDN依賴**: 所有外部庫都使用CDN載入
+- **GitHub Pages**: 可直接部署到GitHub Pages
+- **無需建置**: 不需要npm install或build過程
 
 ## 🔧 核心功能實作
 
 ### 1. 檔案處理邏輯
 ```javascript
 // CSV檔案處理
-- 多種編碼支援 (UTF-8, Big5, GB2312, GBK, Latin1, Windows-1252)
+- UTF-8編碼支援
 - BOM檢測與處理
-- 亂碼字符清理
-- 控制字符移除
+- 原始格式保持
+- 特殊字符處理
 
 // Excel檔案處理
-- 原始格式保持
-- 日期格式保護
-- 數字格式保護
-- 特殊字符處理
+- 顯示警語提示
+- 引導用戶轉存為CSV
+- 不支援直接處理
 ```
 
 ### 2. 格式轉換保護
@@ -109,16 +106,16 @@ AccountAnalysis/
 ## 📁 檔案命名規則
 
 ### 下載檔案格式
-- **格式**: `converted_YYYYMMDD.csv`
-- **範例**: `converted_20250115.csv`
+- **格式**: `converted.csv`
 - **編碼**: UTF-8 with BOM
+- **保護**: 所有欄位都用雙引號包住
 
 ## 🔍 問題解決方案
 
 ### 1. 編碼問題
-- **多層編碼檢測**: 自動嘗試多種編碼格式
-- **BOM處理**: 正確處理UTF-8和UTF-16 BOM
-- **亂碼清理**: 移除Unicode替換字符和控制字符
+- **UTF-8支援**: 主要支援UTF-8編碼
+- **BOM處理**: 正確處理UTF-8 BOM
+- **格式保護**: 防止Excel自動轉換
 
 ### 2. 格式轉換問題
 - **雙引號保護**: 所有欄位都被雙引號包住
@@ -132,40 +129,35 @@ AccountAnalysis/
 
 ## 🚀 部署與使用
 
-### 開發環境
+### 本地使用
 ```bash
-# 安裝依賴
-npm install
-
-# 啟動開發伺服器
-npm run dev
-
-# 訪問地址
-http://localhost:3002
+# 直接開啟檔案
+# 在瀏覽器中開啟 index.html
+# 或使用本地伺服器
+python -m http.server 8000
+# 訪問 http://localhost:8000
 ```
 
-### 生產環境
+### GitHub Pages部署
 ```bash
-# 建置專案
-npm run build
-
-# 預覽建置結果
-npm run preview
+# 將 index.html 上傳到GitHub repository
+# 在GitHub Settings中啟用GitHub Pages
+# 選擇主分支作為來源
+# 訪問 https://username.github.io/repository-name
 ```
 
 ## 📊 測試案例
 
 ### 1. CSV檔案測試
 - UTF-8編碼的CSV檔案
-- Big5編碼的CSV檔案
 - 包含中文的CSV檔案
 - 包含特殊字符的CSV檔案
+- 包含日期格式的CSV檔案
 
 ### 2. Excel檔案測試
-- .xlsx格式檔案
-- .xls格式檔案
-- 包含日期格式的Excel檔案
-- 包含數字格式的Excel檔案
+- 上傳Excel檔案顯示警語
+- 引導用戶轉存為CSV
+- 不支援直接處理
 
 ### 3. 格式保護測試
 - PERIOD_NAME欄位格式保護
@@ -190,7 +182,19 @@ npm run preview
 
 ## 📝 開發日誌
 
-### 版本 1.0.0 (2025-01-15)
+### 版本 2.0.0 (2025-01-15) - 純HTML版本
+- ✅ 純HTML單一檔案架構
+- ✅ 僅支援CSV檔案處理
+- ✅ Excel檔案警語提示
+- ✅ 格式轉換邏輯
+- ✅ 格式保護機制
+- ✅ 彩帶動畫效果
+- ✅ 響應式UI設計
+- ✅ 錯誤處理機制
+- ✅ CDN依賴載入
+- ✅ 無需建置部署
+
+### 版本 1.0.0 (2025-01-15) - React版本
 - ✅ 基本檔案上傳功能
 - ✅ CSV/Excel檔案處理
 - ✅ 格式轉換邏輯
@@ -203,7 +207,8 @@ npm run preview
 ## 🎯 專案目標達成
 
 ### 核心目標 ✅
-- [x] 支援CSV和Excel檔案上傳
+- [x] 支援CSV檔案上傳
+- [x] Excel檔案警語提示
 - [x] 轉換為標準10欄位格式
 - [x] 保持原始資料格式
 - [x] 防止Excel自動轉換
@@ -211,12 +216,13 @@ npm run preview
 - [x] 用戶友善的界面
 
 ### 技術目標 ✅
-- [x] 現代化React架構
+- [x] 純HTML單一檔案架構
 - [x] 響應式設計
-- [x] 多編碼支援
+- [x] UTF-8編碼支援
 - [x] 格式保護機制
 - [x] 動畫效果
 - [x] 錯誤處理
+- [x] CDN依賴載入
 
 ### 用戶體驗目標 ✅
 - [x] 直觀的操作流程
@@ -226,6 +232,7 @@ npm run preview
 
 ---
 
-**專案狀態**: ✅ 完成  
+**專案狀態**: ✅ 完成 (版本 2.0.0)  
 **最後更新**: 2025-01-15  
-**維護者**: 開發團隊
+**維護者**: 開發團隊  
+**最終架構**: 純HTML單一檔案，僅支援CSV轉換
