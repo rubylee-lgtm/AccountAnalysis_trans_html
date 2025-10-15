@@ -3,7 +3,7 @@
 ## 🎯 專案概述
 
 **專案名稱**: 財務 AccountAnalysis 轉換工具  
-**版本**: 2.0.0 (純HTML版本)  
+**版本**: 2.0.1 (純HTML版本)  
 **技術棧**: 純HTML + Tailwind CSS + PapaParse + Canvas Confetti  
 **開發時間**: 2025年1月  
 **最終狀態**: ✅ 完成，僅支援CSV檔案  
@@ -12,7 +12,7 @@
 
 ### 核心功能
 1. **檔案上傳**: 僅支援 CSV 檔案格式
-2. **格式轉換**: 將來源檔案轉換為標準的10個欄位格式
+2. **格式轉換**: 將來源檔案轉換為標準的11個欄位格式
 3. **格式保護**: 確保所有欄位保持原始格式，不被自動轉換
 4. **檔案下載**: 轉換完成後提供下載功能
 5. **動畫效果**: 轉換完成後觸發彩帶動畫
@@ -26,10 +26,11 @@
 4. NATURAL_ACCOUNT_SEGMENT
 5. NATURAL_ACCOUNT_DESC
 6. GL_DATE
-7. TRANSACTION_NUMBER
-8. LINE_DESCRIPTION
-9. ACCOUNTED_DR
-10. ACCOUNTED_CR
+7. HEADER_DESCRIPTION
+8. TRANSACTION_NUMBER
+9. LINE_DESCRIPTION
+10. ACCOUNTED_DR
+11. ACCOUNTED_CR
 ```
 
 ## 🛠 技術架構
@@ -85,8 +86,8 @@ AccountAnalysis/
 
 ### 3. CSV輸出格式
 ```csv
-"PARTY_NUMBER","PARTY_NAME","PERIOD_NAME","NATURAL_ACCOUNT_SEGMENT","NATURAL_ACCOUNT_DESC","GL_DATE","TRANSACTION_NUMBER","LINE_DESCRIPTION","ACCOUNTED_DR","ACCOUNTED_CR"
-"123","公司A","25-Jan","1001","銷貨收入","2025/1/1","TR001","銷售商品","100","0"
+"PARTY_NUMBER","PARTY_NAME","PERIOD_NAME","NATURAL_ACCOUNT_SEGMENT","NATURAL_ACCOUNT_DESC","GL_DATE","HEADER_DESCRIPTION","TRANSACTION_NUMBER","LINE_DESCRIPTION","ACCOUNTED_DR","ACCOUNTED_CR"
+"123","公司A","25-Jan","1001","銷貨收入","2025/1/1","批次說明-001","TR001","銷售商品","100","0"
 ```
 
 ## 🎨 用戶界面設計
@@ -96,7 +97,7 @@ AccountAnalysis/
 2. **檔案選擇**: 選擇檔案按鈕 + 重新選擇功能
 3. **轉換按鈕**: 開始轉換處理
 4. **下載按鈕**: 轉換完成後顯示
-5. **目標欄位說明**: 顯示10個目標欄位順序
+5. **目標欄位說明**: 顯示11個目標欄位順序
 
 ### 動畫效果
 - **彩帶動畫**: 轉換完成後自動觸發
@@ -182,6 +183,11 @@ python -m http.server 8000
 
 ## 📝 開發日誌
 
+### 版本 2.0.1 (2025-10-15) - 純HTML版本
+- ✅ 新增欄位 HEADER_DESCRIPTION（位於 GL_DATE 之後）
+- ✅ 更新欄位順序為 11 欄位
+- ✅ 更新範例與文件說明
+
 ### 版本 2.0.0 (2025-01-15) - 純HTML版本
 - ✅ 純HTML單一檔案架構
 - ✅ 僅支援CSV檔案處理
@@ -209,7 +215,7 @@ python -m http.server 8000
 ### 核心目標 ✅
 - [x] 支援CSV檔案上傳
 - [x] Excel檔案警語提示
-- [x] 轉換為標準10欄位格式
+- [x] 轉換為標準11欄位格式
 - [x] 保持原始資料格式
 - [x] 防止Excel自動轉換
 - [x] 提供下載功能
@@ -232,7 +238,7 @@ python -m http.server 8000
 
 ---
 
-**專案狀態**: ✅ 完成 (版本 2.0.0)  
-**最後更新**: 2025-01-15  
+**專案狀態**: ✅ 完成 (版本 2.0.1)  
+**最後更新**: 2025-10-15  
 **維護者**: 開發團隊  
 **最終架構**: 純HTML單一檔案，僅支援CSV轉換
