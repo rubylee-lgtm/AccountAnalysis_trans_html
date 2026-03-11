@@ -11,9 +11,14 @@ const REQUIRED_COLUMNS = [
   'NATURAL_ACCOUNT_SEGMENT',
   'NATURAL_ACCOUNT_DESC',
   'GL_DATE',
+  'HEADER_DESCRIPTION',
   'TRANSACTION_NUMBER',
   'LINE_DESCRIPTION',
+  'ENTERED_CURRENCY',
+  'CONVERSION_RATE',
+  'ENTERED_DR',
   'ACCOUNTED_DR',
+  'ENTERED_CR',
   'ACCOUNTED_CR'
 ]
 
@@ -59,6 +64,7 @@ function App() {
     if (!selectedFile) return
 
     setIsConverting(true)
+    console.log('開始處理檔案:', selectedFile.name, '大小:', selectedFile.size)
     
     try {
       let data = []
@@ -66,7 +72,9 @@ function App() {
 
       if (fileExtension === 'csv') {
         // 處理CSV檔案 - 修復編碼問題
+        console.log('處理CSV檔案...')
         const arrayBuffer = await selectedFile.arrayBuffer()
+        console.log('檔案讀取完成，大小:', arrayBuffer.byteLength)
         
         // 檢測BOM並選擇適當的編碼
         let text
@@ -80,31 +88,13 @@ function App() {
           // UTF-16 LE BOM
           text = new TextDecoder('utf-16le').decode(arrayBuffer.slice(2))
         } else {
-          // 嘗試多種編碼方式，按優先順序
-          const encodings = ['utf-8', 'big5', 'gb2312', 'gbk', 'latin1', 'windows-1252']
-          let success = false
-          
-          for (const encoding of encodings) {
-            try {
-              text = new TextDecoder(encoding).decode(arrayBuffer)
-              // 檢查是否包含亂碼字符
-              if (!text.includes('') && !text.includes('')) {
-                success = true
-                break
-              }
-            } catch (error) {
-              continue
-            }
-          }
-          
-          if (!success) {
-            // 如果所有編碼都失敗，使用UTF-8並嘗試修復
-            text = new TextDecoder('utf-8', { fatal: false }).decode(arrayBuffer)
-          }
+          // 直接使用UTF-8，不進行複雜的編碼檢測
+          text = new TextDecoder('utf-8', { fatal: false }).decode(arrayBuffer)
         }
         
         // 清理可能的亂碼字符
         text = text.replace(/\uFFFD/g, '') // 移除Unicode替換字符
+        console.log('文字解碼完成，長度:', text.length)
         
         const result = Papa.parse(text, { 
           header: true, 
@@ -116,9 +106,12 @@ function App() {
           encoding: 'UTF-8'
         })
         data = result.data
+        console.log('CSV解析完成，資料筆數:', data.length)
       } else if (['xlsx', 'xls'].includes(fileExtension)) {
         // 處理Excel檔案 - 確保所有欄位保持原始字元內容
+        console.log('處理Excel檔案...')
         const arrayBuffer = await selectedFile.arrayBuffer()
+        console.log('Excel檔案讀取完成，大小:', arrayBuffer.byteLength)
         const workbook = XLSX.read(arrayBuffer, { 
           type: 'array',
           cellDates: false,  // 不自動解析日期
@@ -130,95 +123,54 @@ function App() {
         const sheetName = workbook.SheetNames[0]
         const worksheet = workbook.Sheets[sheetName]
         
-        // 使用更保守的方式讀取，避免任何自動轉換
+        // 簡化Excel讀取，提高性能
         data = XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           defval: '',
-          blankrows: false,
-          raw: true,         // 保持原始值，不做格式化
-          dateNF: false,     // 不格式化日期
-          rawNumbers: false  // 不將數字轉換為數值
+          blankrows: false
         })
         
         // 將陣列格式轉換為物件格式
+        console.log('Excel原始資料筆數:', data.length)
         if (data.length > 0) {
           const headers = data[0]
+          console.log('Excel標題行:', headers)
           data = data.slice(1).map(row => {
             const obj = {}
             headers.forEach((header, index) => {
               if (header) {
                 const value = row[index]
-                
-                // 所有欄位都強制保持原始字串格式，不做任何轉換
-                if (value !== undefined && value !== null) {
-                  // 強制轉換為字串，確保不會被轉換為數字或日期
-                  let stringValue = String(value)
-                  
-                  // 清理可能的亂碼字符
-                  stringValue = stringValue.replace(/\uFFFD/g, '') // 移除Unicode替換字符
-                                          .replace(/\u0000/g, '') // 移除空字符
-                                          .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // 移除控制字符
-                  
-                  // 特別處理日期和金額欄位，確保完全保持原始格式
-                  if (header === 'PERIOD_NAME' || header === 'GL_DATE') {
-                    // 日期相關欄位，完全保持原始格式
-                    obj[header] = stringValue.trim()
-                  } else if (header === 'ACCOUNTED_DR' || header === 'ACCOUNTED_CR') {
-                    // 金額欄位，保持原始格式
-                    obj[header] = stringValue
-                  } else {
-                    // 其他所有欄位都保持原始字串格式
-                    obj[header] = stringValue
-                  }
-                } else {
-                  obj[header] = ''
-                }
+                // 簡化處理，直接轉換為字串
+                obj[header] = value !== undefined && value !== null ? String(value) : ''
               }
             })
             return obj
           })
+          console.log('Excel轉換完成，物件格式資料筆數:', data.length)
         }
       } else {
         throw new Error('不支援的檔案格式')
       }
 
-      // 轉換資料格式 - 完整保留來源檔案的原始字元內容
+      // 簡化轉換邏輯，提高性能
+      console.log('開始最終轉換，原始資料筆數:', data.length)
       const convertedData = data.map(row => {
         const newRow = {}
         REQUIRED_COLUMNS.forEach(column => {
           const value = row[column]
-          
-          // 所有欄位都強制保持原始字串格式，不做任何轉換
-          if (value !== undefined && value !== null) {
-            // 強制轉換為字串，並保持原始格式
-            let stringValue = String(value)
-            
-            // 清理可能的亂碼字符和控制字符
-            stringValue = stringValue.replace(/\uFFFD/g, '') // 移除Unicode替換字符
-                                    .replace(/\u0000/g, '') // 移除空字符
-                                    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // 移除控制字符
-                                    .replace(/\s+/g, ' ') // 標準化空白字符
-                                    .trim() // 移除前後空白
-            
-            // 確保不會被轉換為數字或日期格式
-            if (column === 'PERIOD_NAME' || column === 'GL_DATE') {
-              // 對於日期相關欄位，確保完全保持原始格式
-              newRow[column] = stringValue
-            } else if (column === 'ACCOUNTED_DR' || column === 'ACCOUNTED_CR') {
-              // 對於金額欄位，確保保持原始格式
-              newRow[column] = stringValue
-            } else {
-              // 其他所有欄位都保持原始字串格式
-              newRow[column] = stringValue
-            }
-          } else {
-            newRow[column] = ''
-          }
+          // 簡化處理，直接轉換為字串
+          newRow[column] = value !== undefined && value !== null ? String(value).trim() : ''
         })
         return newRow
       })
 
       console.log('轉換後的資料範例:', convertedData.slice(0, 2))
+      
+      // 檢查轉換結果
+      if (!convertedData || convertedData.length === 0) {
+        throw new Error('轉換後沒有資料，請檢查檔案格式是否正確')
+      }
+      
       setConvertedData(convertedData)
       showSuccessAnimation()
     } catch (error) {
@@ -256,7 +208,13 @@ function App() {
               stringValue.match(/^[A-Za-z]{3}-\d{2}$/)) {
             // 保持原始格式，不做任何修改
           }
-        } else if (column === 'ACCOUNTED_DR' || column === 'ACCOUNTED_CR') {
+        } else if (
+          column === 'ENTERED_DR' ||
+          column === 'ACCOUNTED_DR' ||
+          column === 'ENTERED_CR' ||
+          column === 'ACCOUNTED_CR' ||
+          column === 'CONVERSION_RATE'
+        ) {
           // 對於金額欄位，確保保持原始格式
           stringValue = stringValue
         } else if (column === 'PARTY_NUMBER' || column === 'NATURAL_ACCOUNT_SEGMENT') {
