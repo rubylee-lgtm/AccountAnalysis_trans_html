@@ -3,7 +3,7 @@
 ## 🎯 專案概述
 
 **專案名稱**: 財務 AccountAnalysis 轉換工具  
-**版本**: 2.0.1 (純HTML版本)  
+**版本**: 2.1.0 (純HTML版本，含外幣欄位配置)  
 **技術棧**: 純HTML + Tailwind CSS + PapaParse + Canvas Confetti  
 **開發時間**: 2025年1月  
 **最終狀態**: ✅ 完成，僅支援CSV檔案  
@@ -18,7 +18,7 @@
 5. **動畫效果**: 轉換完成後觸發彩帶動畫
 6. **Excel警語**: 上傳Excel檔案時顯示處理說明
 
-### 目標欄位順序
+### 目標欄位順序（目前 15 欄版本）
 ```
 1. PARTY_NUMBER
 2. PARTY_NAME
@@ -36,6 +36,38 @@
 14. ENTERED_CR
 15. ACCOUNTED_CR
 ```
+
+### HTML 模式切換（自 2.2.0 起）
+
+- **模式 1：原版本（11 欄）**
+  - PARTY_NUMBER  
+  - PARTY_NAME  
+  - PERIOD_NAME  
+  - NATURAL_ACCOUNT_SEGMENT  
+  - NATURAL_ACCOUNT_DESC  
+  - GL_DATE  
+  - HEADER_DESCRIPTION  
+  - TRANSACTION_NUMBER  
+  - LINE_DESCRIPTION  
+  - ACCOUNTED_DR  
+  - ACCOUNTED_CR  
+
+- **模式 2：包含外幣（15 欄）**
+  - PARTY_NUMBER  
+  - PARTY_NAME  
+  - PERIOD_NAME  
+  - NATURAL_ACCOUNT_SEGMENT  
+  - NATURAL_ACCOUNT_DESC  
+  - GL_DATE  
+  - HEADER_DESCRIPTION  
+  - TRANSACTION_NUMBER  
+  - LINE_DESCRIPTION  
+  - ENTERED_CURRENCY  
+  - CONVERSION_RATE  
+  - ENTERED_DR  
+  - ACCOUNTED_DR  
+  - ENTERED_CR  
+  - ACCOUNTED_CR  
 
 ## 🛠 技術架構
 
@@ -187,6 +219,16 @@ python -m http.server 8000
 
 ## 📝 開發日誌
 
+### 版本 2.2.0 (2026-03-11) - 純HTML版本（新增模式切換）
+- ✅ HTML 版新增「原版本 / 包含外幣」頁籤切換
+- ✅ 轉換與下載依頁籤使用 11 欄或 15 欄欄位
+- ✅ 更新 README 與規劃文件說明（區分兩組欄位）
+
+### 版本 2.1.0 (2026-03-11) - 純HTML版本（15 欄欄位配置）
+- ✅ 將目標欄位更新為 15 欄（含外幣相關欄位：ENTERED_CURRENCY、CONVERSION_RATE、ENTERED_DR、ENTERED_CR）
+- ✅ React 版與純 HTML 版欄位順序同步
+- ✅ 更新 README 與規劃文件說明
+
 ### 版本 2.0.1 (2025-10-15) - 純HTML版本
 - ✅ 新增欄位 HEADER_DESCRIPTION（位於 GL_DATE 之後）
 - ✅ 更新欄位順序為 11 欄位
@@ -242,7 +284,7 @@ python -m http.server 8000
 
 ---
 
-**專案狀態**: ✅ 完成 (版本 2.0.1)  
-**最後更新**: 2025-10-15  
+**專案狀態**: ✅ 完成 (版本 2.2.0)  
+**最後更新**: 2026-03-11  
 **維護者**: 開發團隊  
 **最終架構**: 純HTML單一檔案，僅支援CSV轉換
